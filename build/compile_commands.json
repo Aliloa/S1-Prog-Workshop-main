@@ -1,0 +1,44 @@
+[
+{
+  "directory": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build",
+  "command": "C:\\Winlibs\\bin\\g++.exe -IC:/Ecole/IMAC3/S1-Prog-Workshop-main/src -IC:/Ecole/IMAC3/S1-Prog-Workshop-main/lib -IC:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/glm -isystem C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/include -g -o CMakeFiles\\ImageEditor.dir\\lib\\random.cpp.obj -c C:\\Ecole\\IMAC3\\S1-Prog-Workshop-main\\lib\\random.cpp",
+  "file": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/random.cpp",
+  "output": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build/CMakeFiles/ImageEditor.dir/lib/random.cpp.obj"
+},
+{
+  "directory": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build",
+  "command": "C:\\Winlibs\\bin\\g++.exe -IC:/Ecole/IMAC3/S1-Prog-Workshop-main/src -IC:/Ecole/IMAC3/S1-Prog-Workshop-main/lib -IC:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/glm -isystem C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/include -g -o CMakeFiles\\ImageEditor.dir\\src\\main.cpp.obj -c C:\\Ecole\\IMAC3\\S1-Prog-Workshop-main\\src\\main.cpp",
+  "file": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/src/main.cpp",
+  "output": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build/CMakeFiles/ImageEditor.dir/src/main.cpp.obj"
+},
+{
+  "directory": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build",
+  "command": "C:\\Winlibs\\bin\\g++.exe -DSIL_CMAKE_SOURCE_DIR=\\\"C:/Ecole/IMAC3/S1-Prog-Workshop-main\\\" -IC:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/glm -isystem C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/include -isystem C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/img/include -isystem C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/img/lib -g -o lib\\sil\\CMakeFiles\\sil.dir\\src\\sil.cpp.obj -c C:\\Ecole\\IMAC3\\S1-Prog-Workshop-main\\lib\\sil\\src\\sil.cpp",
+  "file": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/src/sil.cpp",
+  "output": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build/lib/sil/CMakeFiles/sil.dir/src/sil.cpp.obj"
+},
+{
+  "directory": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build",
+  "command": "C:\\Winlibs\\bin\\g++.exe -isystem C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/img/lib -g -Wall -Wextra -Wpedantic -pedantic-errors -Wconversion -Wsign-conversion -o lib\\sil\\lib\\img\\CMakeFiles\\img.dir\\src\\Load.cpp.obj -c C:\\Ecole\\IMAC3\\S1-Prog-Workshop-main\\lib\\sil\\lib\\img\\src\\Load.cpp",
+  "file": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/img/src/Load.cpp",
+  "output": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build/lib/sil/lib/img/CMakeFiles/img.dir/src/Load.cpp.obj"
+},
+{
+  "directory": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build",
+  "command": "C:\\Winlibs\\bin\\g++.exe -isystem C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/img/lib -g -Wall -Wextra -Wpedantic -pedantic-errors -Wconversion -Wsign-conversion -o lib\\sil\\lib\\img\\CMakeFiles\\img.dir\\src\\Save.cpp.obj -c C:\\Ecole\\IMAC3\\S1-Prog-Workshop-main\\lib\\sil\\lib\\img\\src\\Save.cpp",
+  "file": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/img/src/Save.cpp",
+  "output": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build/lib/sil/lib/img/CMakeFiles/img.dir/src/Save.cpp.obj"
+},
+{
+  "directory": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build",
+  "command": "C:\\Winlibs\\bin\\g++.exe -g -o lib\\sil\\lib\\img\\CMakeFiles\\stb_image.dir\\lib\\stb_image\\stb_image.cpp.obj -c C:\\Ecole\\IMAC3\\S1-Prog-Workshop-main\\lib\\sil\\lib\\img\\lib\\stb_image\\stb_image.cpp",
+  "file": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/img/lib/stb_image/stb_image.cpp",
+  "output": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build/lib/sil/lib/img/CMakeFiles/stb_image.dir/lib/stb_image/stb_image.cpp.obj"
+},
+{
+  "directory": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build",
+  "command": "C:\\Winlibs\\bin\\g++.exe -g -o lib\\sil\\lib\\img\\CMakeFiles\\stb_image.dir\\lib\\stb_image\\stb_image_write.cpp.obj -c C:\\Ecole\\IMAC3\\S1-Prog-Workshop-main\\lib\\sil\\lib\\img\\lib\\stb_image\\stb_image_write.cpp",
+  "file": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/lib/sil/lib/img/lib/stb_image/stb_image_write.cpp",
+  "output": "C:/Ecole/IMAC3/S1-Prog-Workshop-main/build/lib/sil/lib/img/CMakeFiles/stb_image.dir/lib/stb_image/stb_image_write.cpp.obj"
+}
+]
