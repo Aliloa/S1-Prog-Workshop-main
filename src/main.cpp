@@ -140,7 +140,7 @@ void lighting(sil::Image &image)
     }
 }
 
-void circle(sil::Image &image)
+void draw_circle(sil::Image &image)
 {
     int w = image.width();
     int h = image.height();
@@ -150,8 +150,8 @@ void circle(sil::Image &image)
         {
             float dx = x - w / 2;
             float dy = y - h / 2;
-            float distance2 = dx * dx + dy * dy;
-            if (distance2 <= 100 * 100) // à l'intérieur du cercle
+            float diametre = dx * dx + dy * dy; // calcul du diametre d'un cercle
+            if (diametre <= 100 * 100)          // à l'intérieur du cercle
             {
                 image.pixel(x, y).r = 1.0f; // blanc
                 image.pixel(x, y).g = 1.0f;
@@ -161,23 +161,23 @@ void circle(sil::Image &image)
     }
 }
 
-void empty_circle(sil::Image &image)
+void draw_empty_circle(sil::Image &image)
 {
     int w = image.width();
     int h = image.height();
-    int thickness = 15;
+    int thickness = 10;
     for (int x = 0; x < w; x++)
     {
         for (int y = 0; y < h; y++)
         {
             float dx = x - w / 2;
             float dy = y - h / 2;
-            float distance2 = dx * dx + dy * dy;
-            if (distance2 <= 150 * 150 && distance2 >= (150 - thickness) * (150 - thickness)) // à l'intérieur du cercle
+            float diametre = dx * dx + dy * dy;
+            if (diametre <= 100 * 100 && diametre >= (100 - thickness) * (100 - thickness)) // à l'intérieur du cercle
             {
-                image.pixel(x, y).r = 1.0f; // blanc
-                image.pixel(x, y).g = 1.0f;
-                image.pixel(x, y).b = 1.0f;
+                image.pixel(x, y).r = 1;
+                image.pixel(x, y).g = 1;
+                image.pixel(x, y).b = 1;
             }
         }
     }
@@ -188,43 +188,225 @@ void animation(sil::Image &image)
     int w = image.width();
     int h = image.height();
     int total_frames = 50;
-    int radius = 50; 
+    int radius = 50;
+    int speed = 5;
 
-    for (int frame = 0; frame < total_frames; frame++)
+    for (int i = 0; i < total_frames; i++)
     {
-        // image temporaire pour dessiner le cercle
-        sil::Image temp(w, h);
+        // reset image
+        for (glm::vec3 &p : image.pixels())
+            p = glm::vec3(0.f);
 
-        // centre du cercle
-        int cx = w / 2;
-        int cy = h / 2;
+        sil::Image circle(w, h);
+        draw_circle(circle); // cercle centré
 
-        // dessiner le cercle sur temp
+        int offsetX = i * speed;
+        int offsetY = 0;
+
+        // recopie circle dans image avec décalage
         for (int x = 0; x < w; x++)
         {
             for (int y = 0; y < h; y++)
             {
-                int dx = x - cx;
-                int dy = y - cy;
-                if (dx * dx + dy * dy <= radius * radius)
-                    temp.pixel(x, y) = {1.0f, 1.0f, 1.0f}; // blanc
+                if (circle.pixel(x, y).r > 0.f)
+                {
+                    int nx = x + offsetX;
+                    int ny = y + offsetY;
+
+                    if (nx >= 0 && nx < w && ny >= 0 && ny < h)
+                        image.pixel(nx, ny) = circle.pixel(x, y);
+                }
             }
         }
 
-        // recopie temp dans image avec décalage
-        for (int x = 0; x < w; x++)
-        {
-            for (int y = 0; y < h; y++)
-            {
-                int newx = x + frame;
-                if (newx < w)
-                    image.pixel(newx, y) = temp.pixel(x, y);
-            }
-        }
-
-        // sauvegarde la frame
-        std::string filename = "output/animation/frame_" + std::to_string(frame) + ".png";
+        // sauvegarder la frame
+        std::string filename = "output/animation/frame_" + std::to_string(i) + ".png";
         image.save(filename);
+    }
+}
+
+// -----------------------⭐⭐⭐
+
+void rosace(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+
+    int circles = 6;
+    int radius = 50;
+
+    // cercle central
+    {
+        sil::Image circle(w, h);
+        draw_empty_circle(circle);
+
+        for (int x = 0; x < w; x++)
+            for (int y = 0; y < h; y++)
+                if (circle.pixel(x, y).r > 0.f)
+                    image.pixel(x, y) = circle.pixel(x, y);
+    }
+
+    // cercles autour
+    for (int i = 0; i < circles; i++)
+    {
+        float angle = i * 2.f * M_PI / circles;
+        int offsetX = static_cast<int>(cos(angle) * 2 * radius);
+        int offsetY = static_cast<int>(sin(angle) * 2 * radius);
+
+        sil::Image circle(w, h);
+        draw_empty_circle(circle);
+
+        for (int x = 0; x < w; x++)
+        {
+            for (int y = 0; y < h; y++)
+            {
+                if (circle.pixel(x, y).r > 0.f)
+                {
+                    int nx = x + offsetX;
+                    int ny = y + offsetY;
+
+                    if (nx >= 0 && nx < w && ny >= 0 && ny < h)
+                        image.pixel(nx, ny) = circle.pixel(x, y);
+                }
+            }
+        }
+    }
+}
+
+// -----------------------⭐⭐
+void mosaique(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+    // sil::Image copy(w, h);
+    int step = 5; // on prend un pixel tous les 5
+
+    int mini_w = w / step;
+    int mini_h = h / step;
+    sil::Image mini(mini_w, mini_h);
+    for (int x = 0; x < w; x += step)
+    {
+        for (int y = 0; y < h; y += step)
+        {
+            mini.pixel(x / step, y / step) = image.pixel(x, y); // on "réduit" visuellement
+        }
+    }
+
+    // répéter 5 fois en hauteur et en largeur
+    sil::Image result(mini_w * 5, mini_h * 5); // image finale
+    for (int i = 0; i < 5; i++)                // largeur
+    {
+        for (int j = 0; j < 5; j++) // hauteur
+        {
+            for (int x = 0; x < mini_w; x++)
+            {
+                for (int y = 0; y < mini_h; y++)
+                {
+                    result.pixel(x + i * mini_w, y + j * mini_h) = mini.pixel(x, y);
+                }
+            }
+        }
+    }
+
+    image = result; // on remplace l'image originale
+}
+
+// -----------------------⭐⭐⭐⭐
+void mosaique_mirror(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+    // sil::Image copy(w, h);
+    int step = 5; // on prend un pixel tous les 5
+
+    int mini_w = w / step;
+    int mini_h = h / step;
+    sil::Image mini(mini_w, mini_h);
+    for (int x = 0; x < w; x += step)
+    {
+        for (int y = 0; y < h; y += step)
+        {
+            mini.pixel(x / step, y / step) = image.pixel(x, y); // on "réduit" visuellement
+        }
+    }
+
+    // répéter 5 fois en hauteur et en largeur
+    sil::Image result(mini_w * 5, mini_h * 5); // image finale
+    for (int i = 0; i < 5; i++)                // largeur
+    {
+        for (int j = 0; j < 5; j++) // hauteur
+        {
+            bool mirror_w = (i + j) % 2 == 1; // une image sur deux en largeur
+            bool mirror_h = j % 2 == 1;       // une image sur deux en hauteur
+
+            for (int x = 0; x < mini_w; x++)
+            {
+                for (int y = 0; y < mini_h; y++)
+                {
+                    int src_x = mirror_w ? (mini_w - 1 - x) : x;
+                    int src_y = mirror_h ? (mini_h - 1 - y) : y;
+                    result.pixel(x + i * mini_w, y + j * mini_h) = mini.pixel(src_x, src_y);
+                }
+            }
+        }
+    }
+
+    image = result; // on remplace l'image originale
+}
+
+// -----------------------⭐⭐⭐
+void glitch(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+
+    for (int i = 0; i < 60; i++) // repter 20 fois
+    {
+        // générer rectangle aléatoire
+        int rect_w = random_int(5, 40);     // largeur du rectangle
+        int rect_h = random_int(2, 10);     // hauteur du rectangle
+        int x1 = random_int(0, w - rect_w); // position de départ 1
+        int y1 = random_int(0, h - rect_h);
+
+        int x2 = random_int(0, w - rect_w); // position de départ 2
+        int y2 = random_int(0, h - rect_h);
+
+        // échanger tous les pixels du rectangle
+        for (int dx = 0; dx < rect_w; dx++)
+        {
+            for (int dy = 0; dy < rect_h; dy++)
+            {
+                std::swap(
+                    image.pixel(x1 + dx, y1 + dy),
+                    image.pixel(x2 + dx, y2 + dy));
+            }
+        }
+    }
+}
+
+void color_gradient(sil::Image &image)
+{
+    for (int x{0}; x < image.width(); x++)
+    {
+        for (int y{0}; y < image.height(); y++)
+        {
+            float t = x / float(image.width() - 1);
+            image.pixel(x, y).r = t;
+            image.pixel(x, y).g = t;
+            image.pixel(x, y).b = t;
+        }
+    }
+}
+
+void example2(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+    for (int x = 0; x < w; x++)
+    {
+        for (int y = 0; y < h; y++)
+        {
+        }
     }
 }
 
@@ -245,63 +427,88 @@ int main()
         keep_green_only(image);                   // Utilise la fonction pour modifier l'image
         image.save("output/keep_green_only.png"); // Sauvegarde l'image
     }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     swap_canals(image);
+    //     image.save("output/swap_canals.png");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     black_and_white(image);
+    //     image.save("output/black_and_white.png");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     negatif(image);
+    //     image.save("output/negatif.png");
+    // }
+    // {
+    //     sil::Image image{300 /*width*/, 200 /*height*/};
+    //     gradient(image);
+    //     image.save("output/gradient.png");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     mirror(image);
+    //     image.save("output/mirror.png");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     noise(image);
+    //     image.save("output/noise.png");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     rotate(image);
+    //     image.save("output/rotate.png");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     split(image);
+    //     image.save("output/split.png");
+    // }
+    // {
+    //     sil::Image image{"images/photo_faible_contraste.jpg"};
+    //     lighting(image);
+    //     image.save("output/lighting.png");
+    // }
+    // {
+    //     sil::Image image{500 /*width*/, 500 /*height*/};
+    //     draw_circle(image);
+    //     image.save("output/circle.png");
+    // }
+    // {
+    //     sil::Image image{500 /*width*/, 500 /*height*/};
+    //     draw_empty_circle(image);
+    //     image.save("output/empty_circle.png");
+    // }
+    // {
+    //     sil::Image image{500 /*width*/, 500 /*height*/};
+    //     animation(image);
+    // }
+    // {
+    //     sil::Image image{600 /*width*/, 600 /*height*/};
+    //     rosace(image);
+    //     image.save("output/rosace.png");
+    // }
     {
         sil::Image image{"images/logo.png"};
-        swap_canals(image);
-        image.save("output/swap_canals.png");
+        mosaique(image);
+        image.save("output/mosaique.png");
     }
     {
         sil::Image image{"images/logo.png"};
-        black_and_white(image);
-        image.save("output/black_and_white.png");
+        mosaique_mirror(image);
+        image.save("output/mosaique_mirror.png");
     }
     {
         sil::Image image{"images/logo.png"};
-        negatif(image);
-        image.save("output/negatif.png");
+        glitch(image);
+        image.save("output/glitch.png");
     }
     {
         sil::Image image{300 /*width*/, 200 /*height*/};
-        gradient(image);
-        image.save("output/gradient.png");
-    }
-    {
-        sil::Image image{"images/logo.png"};
-        mirror(image);
-        image.save("output/mirror.png");
-    }
-    {
-        sil::Image image{"images/logo.png"};
-        noise(image);
-        image.save("output/noise.png");
-    }
-    {
-        sil::Image image{"images/logo.png"};
-        rotate(image);
-        image.save("output/rotate.png");
-    }
-    {
-        sil::Image image{"images/logo.png"};
-        split(image);
-        image.save("output/split.png");
-    }
-    {
-        sil::Image image{"images/logo.png"};
-        lighting(image);
-        image.save("output/lighting.png");
-    }
-    {
-        sil::Image image{500 /*width*/, 500 /*height*/};
-        circle(image);
-        image.save("output/circle.png");
-    }
-    {
-        sil::Image image{500 /*width*/, 500 /*height*/};
-        empty_circle(image);
-        image.save("output/empty_circle.png");
-    }
-    {
-        sil::Image image{500 /*width*/, 500 /*height*/};
-        animation(image);
+        color_gradient(image);
+        image.save("output/color_gradient.png");
     }
 }
