@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # You can set the name of your project here
-project(ImageEditor)
+project(ImageEditor2)
 add_executable(${PROJECT_NAME})
 
 # Choose your C++ version
