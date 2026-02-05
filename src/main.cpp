@@ -2,6 +2,7 @@
 #include <iostream>
 #include <algorithm>
 #include "random.hpp"
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 // -----------------------⭐
 void keep_green_only(sil::Image &image) // Prend l'image par référence pour pouvoir la modifier
@@ -129,7 +130,7 @@ void lighting(sil::Image &image)
 {
     int w = image.width();
     int h = image.height();
-    float p = 3; //<1 = éclaircir >1=assombrir
+    float p = 1.5; //<1 = éclaircir >1=assombrir
     for (int x = 0; x < w; x++)
     {
         for (int y = 0; y < h; y++)
@@ -386,16 +387,72 @@ void glitch(sil::Image &image)
 }
 
 // -----------------------⭐⭐⭐
+
+// passer linear RGB en sRGB
+float rgb_to_srgb(float c)
+{
+    if (c <= 0.0031308f)
+        return 12.92f * c;
+    else
+        return 1.055f * powf(c, 1.0f / 2.4f) - 0.055f;
+}
+
+struct Lab
+{
+    float L;
+    float a;
+    float b;
+};
+struct RGB
+{
+    float r;
+    float g;
+    float b;
+};
+
+// passer de okLab en RGB linéaire
+RGB oklab_to_linear_rgb(Lab c)
+{
+    float l_ = c.L + 0.3963377774f * c.a + 0.2158037573f * c.b;
+    float m_ = c.L - 0.1055613458f * c.a - 0.0638541728f * c.b;
+    float s_ = c.L - 0.0894841775f * c.a - 1.2914855480f * c.b;
+
+    float l = l_ * l_ * l_;
+    float m = m_ * m_ * m_;
+    float s = s_ * s_ * s_;
+
+    return {
+        +4.0767416621f * l - 3.3077115913f * m + 0.2309699292f * s,
+        -1.2684380046f * l + 2.6097574011f * m - 0.3413193965f * s,
+        -0.0041960863f * l - 0.7034186147f * m + 1.7076147010f * s,
+    };
+}
+
 void color_gradient(sil::Image &image)
 {
-    glm::vec3 red = glm::vec3(1, 0, 0);
-    glm::vec3 green = glm::vec3(0, 1, 0);
+    Lab lab_red = {0.62796f, 0.22486f, 0.12585f};    // rouge sRGB
+    Lab lab_green = {0.86644f, -0.23389f, 0.17950f}; // vert sRGB
+
     for (int x{0}; x < image.width(); x++)
     {
         for (int y{0}; y < image.height(); y++)
         {
             float t = x / float(image.width() - 1);
-            glm::vec3 color = glm::mix(red, green, t);
+            // glm::vec3 color = glm::mix(red, green, t);
+
+            // Interpolation en OkLab
+            Lab lab_color;
+            lab_color.L = lab_red.L + t * (lab_green.L - lab_red.L);
+            lab_color.a = lab_red.a + t * (lab_green.a - lab_red.a);
+            lab_color.b = lab_red.b + t * (lab_green.b - lab_red.b);
+
+            // Reconvertir en RGB linéaire
+            RGB color = oklab_to_linear_rgb(lab_color);
+            // retour en sRGB
+            color.r = rgb_to_srgb(color.r);
+            color.g = rgb_to_srgb(color.g);
+            color.b = rgb_to_srgb(color.b);
+
             image.pixel(x, y).r = color.r;
             image.pixel(x, y).g = color.g;
             image.pixel(x, y).b = color.b;
@@ -516,6 +573,48 @@ void normalisation(sil::Image &image)
 }
 
 // -----------------------⭐⭐⭐⭐
+// Fonction donnée:
+glm::vec2 rotated(glm::vec2 point, glm::vec2 center_of_rotation, float angle)
+{
+    return glm::vec2{glm::rotate(glm::mat3{1.f}, angle) * glm::vec3{point - center_of_rotation, 0.f}} + center_of_rotation;
+}
+
+void vortex(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+    sil::Image copy = image; // copier l'image originale
+
+    glm::vec2 center_of_rotation(w / 2, h / 2);
+
+    for (int x = 0; x < w; x++)
+    {
+        for (int y = 0; y < h; y++)
+        {
+            glm::vec2 position(x, y);
+
+            float distance = glm::distance(position, center_of_rotation); // Distance entre le pixel et le centre du vortex
+            float angle = distance * 0.1f;                                // intensité du vortex
+
+            glm::vec2 src = rotated(position, center_of_rotation, angle);
+
+            // int sx = int(src.x);
+            // int sy = int(src.y);
+
+            // empecher l'image de sortir
+            // if (sx < 0 || sx >= w || sy < 0 || sy >= h)
+            // {
+            //     continue;
+            // }
+            int sx = glm::clamp(int(src.x), 0, w - 1);
+            int sy = glm::clamp(int(src.y), 0, h - 1);
+
+            image.pixel(x, y) = copy.pixel(sx, sy);
+        }
+    }
+}
+
+// -----------------------⭐⭐⭐⭐
 void convolutions(sil::Image &image)
 {
     int w = image.width();
@@ -547,6 +646,82 @@ void convolutions(sil::Image &image)
             }
             // moyenne sur tous les pixels voisins
             image.pixel(x, y) = somme / float(count); // la somme de tt les pixels diviser par 9
+        }
+    }
+}
+
+// -----------------------⭐⭐⭐⭐⭐
+void kuwahara(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+
+    // ajouter du bruit à l'image
+    // noise(image);
+
+    sil::Image copy = image;
+
+    // tableau fixe 4x4 pour les indices de chaque quadrant
+    glm::ivec2 carde[4][4] = {
+        {{-2, -2}, {-1, -2}, {-2, -1}, {-1, -1}}, // carré 1 : haut-gauche
+        {{1, -2}, {2, -2}, {1, -1}, {2, -1}},     // carré 2 : haut-droite
+        {{-2, 1}, {-1, 1}, {-2, 2}, {-1, 2}},     // carré 3 : bas-gauche
+        {{1, 1}, {2, 1}, {1, 2}, {2, 2}}          // carré 4 : bas-droite
+    };
+
+    float std_valeurs[4];
+    glm::vec3 moyennes[4]; // pour stocker la moyenne de chaque quadrant
+
+    for (int x = 0; x < w; x++)
+    {
+        for (int y = 0; y < h; y++)
+        {
+            glm::vec3 best_avg(0); // stoque la somme des couleurs RGB
+            int count = 0;
+
+            // parcourir les 4 quadrants
+            for (int q = 0; q < 4; q++)
+            {
+                glm::vec3 somme(0);
+                glm::vec3 sum_sq(0);
+                int count = 0;
+
+                // parcourir les 4 pixels du quadrant
+                for (int k = 0; k < 4; k++)
+                {
+                    int nx = x + carde[q][k].x;
+                    int ny = y + carde[q][k].y;
+
+                    // vérifier qu'on reste dans l'image
+                    if (nx >= 0 && nx < w && ny >= 0 && ny < h)
+                    {
+                        glm::vec3 c = copy.pixel(nx, ny);
+                        somme += c;
+                        sum_sq += c * c; // pour calculer la variance
+                        count++;
+                    }
+                }
+
+                // si on a au moins un pixel dans le quadrant
+                if (count > 0)
+                {
+                    glm::vec3 moyenne = somme / float(count); // moyenne
+                    glm::vec3 var = sum_sq / float(count) - moyenne * moyenne;
+                    glm::vec3 std_dev = glm::sqrt(var); // calcul standart deviation (dit dans la video)
+
+                    float std_val = std_dev.r + std_dev.g + std_dev.b; // une seule valeur
+                    std_valeurs[q] = std_val;                          // stocker les valeur de standart deviation
+                    moyennes[q] = moyenne;                             // stocker les couleurs moyennes
+                }
+            }
+
+            // trouver la plus petite valeur de standart deviation et recupérer son index
+            auto it = std::min_element(std_valeurs, std_valeurs + 4);
+
+            int best_q = it - std_valeurs;
+
+            // appliquer la couleur moyenne du quadrant le plus homogène
+            image.pixel(x, y) = moyennes[best_q]; // utiliser l'index de standart deviation le plus bas pour retrouver la moyenne qui lui correspond
         }
     }
 }
@@ -620,11 +795,11 @@ int main()
     //     split(image);
     //     image.save("output/split.png");
     // }
-    // {
-    //     sil::Image image{"images/photo_faible_contraste.jpg"};
-    //     lighting(image);
-    //     image.save("output/lighting.png");
-    // }
+    {
+        sil::Image image{"images/photo_faible_contraste.jpg"};
+        lighting(image);
+        image.save("output/lighting.png");
+    }
     // {
     //     sil::Image image{500 /*width*/, 500 /*height*/};
     //     draw_circle(image);
@@ -644,44 +819,54 @@ int main()
     //     rosace(image);
     //     image.save("output/rosace.png");
     // }
-    {
-        sil::Image image{"images/logo.png"};
-        mosaique(image);
-        image.save("output/mosaique.png");
-    }
-    {
-        sil::Image image{"images/logo.png"};
-        mosaique_mirror(image);
-        image.save("output/mosaique_mirror.png");
-    }
-    {
-        sil::Image image{"images/logo.png"};
-        glitch(image);
-        image.save("output/glitch.png");
-    }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     mosaique(image);
+    //     image.save("output/mosaique.png");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     mosaique_mirror(image);
+    //     image.save("output/mosaique_mirror.png");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     glitch(image);
+    //     image.save("output/glitch.png");
+    // }
     {
         sil::Image image{300 /*width*/, 200 /*height*/};
         color_gradient(image);
         image.save("output/color_gradient.png");
     }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     pixel_sorting(image);
+    //     image.save("output/pixel_sorting.png");
+    // }
+    // {
+    //     sil::Image image{"images/photo_faible_contraste.jpg"};
+    //     tramage(image);
+    //     image.save("output/tramage.jpg");
+    // }
+    // {
+    //     sil::Image image{"images/photo_faible_contraste.jpg"};
+    //     normalisation(image);
+    //     image.save("output/normalisation.jpg");
+    // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     convolutions(image);
+    //     image.save("output/convolutions.png");
+    // }
     {
         sil::Image image{"images/logo.png"};
-        pixel_sorting(image);
-        image.save("output/pixel_sorting.png");
+        vortex(image);
+        image.save("output/vortex.png");
     }
     {
-        sil::Image image{"images/photo_faible_contraste.jpg"};
-        tramage(image);
-        image.save("output/tramage.jpg");
-    }
-    {
-        sil::Image image{"images/photo_faible_contraste.jpg"};
-        normalisation(image);
-        image.save("output/normalisation.jpg");
-    }
-    {
-        sil::Image image{"images/logo.png"};
-        convolutions(image);
-        image.save("output/convolutions.png");
+        sil::Image image{"images/photo.jpg"};
+        kuwahara(image);
+        image.save("output/kuwahara.jpg");
     }
 }
