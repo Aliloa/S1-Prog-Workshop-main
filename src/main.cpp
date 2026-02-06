@@ -241,10 +241,17 @@ void rosace(sil::Image &image)
         sil::Image circle(w, h);
         draw_empty_circle(circle);
 
+        //copier les pixels 1 par 1
         for (int x = 0; x < w; x++)
+        {
             for (int y = 0; y < h; y++)
-                if (circle.pixel(x, y).r > 0.f)
+            {
+                if (circle.pixel(x, y).r > 0)
+                {
                     image.pixel(x, y) = circle.pixel(x, y);
+                }
+            }
+        }
     }
 
     // cercles autour
@@ -520,7 +527,7 @@ void tramage(sil::Image &image)
             int by = y % 4;
             float bayer_value = bayer[by][bx] * 2; // multiplier pour assombrir / éclaircir (dépend si seuil inversé) l'image un peu
 
-            if (brightness > bayer_value) //1-bayer_value = inverser pour que les noirs soient plus noirs
+            if (brightness > bayer_value)               // 1-bayer_value = inverser pour que les noirs soient plus noirs
                 image.pixel(x, y) = glm::vec3(1, 1, 1); // blanc
             else
                 image.pixel(x, y) = glm::vec3(0, 0, 0); // noir
@@ -548,7 +555,7 @@ void normalisation(sil::Image &image)
             brightness_values.push_back(brightness);
         }
     }
-    //trier le tableau pour avoir la plus grosse et petite valeur
+    // trier le tableau pour avoir la plus grosse et petite valeur
     std::sort(brightness_values.begin(), brightness_values.end());
 
     float min_brightness = brightness_values.front();
@@ -595,7 +602,7 @@ void vortex(sil::Image &image)
             glm::vec2 position(x, y);
 
             float distance = glm::distance(position, center_of_rotation); // Distance entre le pixel et le centre du vortex
-            float angle = distance * 0.1f; // intensité du vortex
+            float angle = distance * 0.1f;                                // intensité du vortex
 
             glm::vec2 src = rotated(position, center_of_rotation, angle);
 
@@ -727,13 +734,117 @@ void kuwahara(sil::Image &image)
     }
 }
 
+// -----------------------⭐⭐⭐⭐⭐⭐
+void square_step(std::vector<std::vector<int>> &map, int chunk_size, int half, int w, int h, int roughness)
+{
+    for (int y = 0; y < h - 1; y += chunk_size)
+    {
+        for (int x = 0; x < w - 1; x += chunk_size)
+        {
+            int one = map[y][x];                            // haut gauche
+            int two = map[y][x + chunk_size];               // haut droite
+            int three = map[y + chunk_size][x];             // bas gauche
+            int four = map[y + chunk_size][x + chunk_size]; // bas droite
+
+            int center = (one + two + three + four) / 4 + random_int(-roughness, roughness);
+            map[y + half][x + half] = center; // centre du carré
+        }
+    }
+}
+
+void diamond_step(std::vector<std::vector<int>> &map, int chunk_size, int half, int w, int h, int roughness)
+{
+    for (int y = 0; y < h; y += half)
+    {
+        for (int x = (y / half) % 2 == 0 ? half : 0; x < w; x += chunk_size)
+        {
+            int sum = 0;
+            int count = 0;
+
+            // haut
+            if (y - half >= 0)
+            {
+                sum += map[y - half][x];
+                count++;
+            }
+            // bas
+            if (y + half < h)
+            {
+                sum += map[y + half][x];
+                count++;
+            }
+            // gauche
+            if (x - half >= 0)
+            {
+                sum += map[y][x - half];
+                count++;
+            }
+            // droite
+            if (x + half < w)
+            {
+                sum += map[y][x + half];
+                count++;
+            }
+
+            int val = sum / count + random_int(-roughness, roughness);
+            map[y][x] = val;
+        }
+    }
+}
+
+void diamond_square(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+
+    std::vector<std::vector<int>> map(h, std::vector<int>(w, 0));
+
+    // SETUP: initialiser les 4 coins
+    map[0][0] = random_int(5, 20);         // haut gauche
+    map[0][w - 1] = random_int(5, 20);     // haut droite
+    map[h - 1][0] = random_int(5, 20);     // bas gauche
+    map[h - 1][w - 1] = random_int(5, 20); // bas droite
+
+    int chunk_size = w - 1;
+    int roughness = 15;
+
+    while (chunk_size > 1)
+    {
+        int half = chunk_size / 2;
+        square_step(map, chunk_size, half, w, h, roughness);
+        diamond_step(map, chunk_size, half, w, h, roughness);
+
+        chunk_size /= 2;
+        roughness = std::max(1, roughness / 2); // diminue progressivement
+    }
+
+    // Normaliser pour passer en glm::vec3
+    int max_val = 0;
+    for (int y = 0; y < h; ++y)
+    {
+        for (int x = 0; x < w; ++x)
+        {
+            max_val = std::max(max_val, map[y][x]);
+        }
+    }
+
+    for (int y = 0; y < h; ++y)
+    {
+        for (int x = 0; x < w; ++x)
+        {
+            float val = map[y][x] / float(max_val);
+            image.pixel(x, y) = glm::vec3(val);
+        }
+    }
+}
+
 int main()
 {
-    {
-        sil::Image image{"images/logo.png"};      // Lis l'image
-        keep_green_only(image);                   // Utilise la fonction pour modifier l'image
-        image.save("output/keep_green_only.png"); // Sauvegarde l'image
-    }
+    // {
+    //     sil::Image image{"images/logo.png"};      // Lis l'image
+    //     keep_green_only(image);                   // Utilise la fonction pour modifier l'image
+    //     image.save("output/keep_green_only.png"); // Sauvegarde l'image
+    // }
     // {
     //     sil::Image image{"images/logo.png"};
     //     swap_canals(image);
@@ -774,11 +885,11 @@ int main()
     //     split(image);
     //     image.save("output/split.png");
     // }
-    {
-        sil::Image image{"images/photo_faible_contraste.jpg"};
-        lighting(image);
-        image.save("output/lighting.png");
-    }
+    // {
+    //     sil::Image image{"images/photo_faible_contraste.jpg"};
+    //     lighting(image);
+    //     image.save("output/lighting.png");
+    // }
     // {
     //     sil::Image image{500 /*width*/, 500 /*height*/};
     //     draw_circle(image);
@@ -793,11 +904,11 @@ int main()
     //     sil::Image image{500 /*width*/, 500 /*height*/};
     //     animation(image);
     // }
-    // {
-    //     sil::Image image{600 /*width*/, 600 /*height*/};
-    //     rosace(image);
-    //     image.save("output/rosace.png");
-    // }
+    {
+        sil::Image image{600 /*width*/, 600 /*height*/};
+        rosace(image);
+        image.save("output/rosace.png");
+    }
     // {
     //     sil::Image image{"images/logo.png"};
     //     mosaique(image);
@@ -813,39 +924,44 @@ int main()
     //     glitch(image);
     //     image.save("output/glitch.png");
     // }
-    {
-        sil::Image image{300 /*width*/, 200 /*height*/};
-        color_gradient(image);
-        image.save("output/color_gradient.png");
-    }
+    // {
+    //     sil::Image image{300 /*width*/, 200 /*height*/};
+    //     color_gradient(image);
+    //     image.save("output/color_gradient.png");
+    // }
     // {
     //     sil::Image image{"images/logo.png"};
     //     pixel_sorting(image);
     //     image.save("output/pixel_sorting.png");
     // }
-    {
-        sil::Image image{"images/photo.jpg"};
-        tramage(image);
-        image.save("output/tramage.jpg");
-    }
-    {
-        sil::Image image{"images/photo_faible_contraste.jpg"};
-        normalisation(image);
-        image.save("output/normalisation.jpg");
-    }
+    // {
+    //     sil::Image image{"images/photo.jpg"};
+    //     tramage(image);
+    //     image.save("output/tramage.jpg");
+    // }
+    // {
+    //     sil::Image image{"images/photo_faible_contraste.jpg"};
+    //     normalisation(image);
+    //     image.save("output/normalisation.jpg");
+    // }
     // {
     //     sil::Image image{"images/logo.png"};
     //     convolutions(image);
     //     image.save("output/convolutions.png");
     // }
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     vortex(image);
+    //     image.save("output/vortex.png");
+    // }
+    // {
+    //     sil::Image image{"images/photo.jpg"};
+    //     kuwahara(image);
+    //     image.save("output/kuwahara.jpg");
+    // }
     {
-        sil::Image image{"images/logo.png"};
-        vortex(image);
-        image.save("output/vortex.png");
-    }
-    {
-        sil::Image image{"images/photo.jpg"};
-        kuwahara(image);
-        image.save("output/kuwahara.jpg");
+        sil::Image image{129 /*width*/, 129 /*height*/}; // valeur doit être 2^n + 1
+        diamond_square(image);
+        image.save("output/diamond_square.png");
     }
 }
