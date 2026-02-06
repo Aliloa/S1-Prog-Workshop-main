@@ -33,7 +33,7 @@
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/keep_green_only.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/keep_green_only.png"> |
 
 
 ---
@@ -41,7 +41,7 @@
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/swap_canals.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/swap_canals.png"> |
 
 ---
 
@@ -49,7 +49,7 @@
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/black_and_white.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/black_and_white.png"> |
 
 ---
 
@@ -57,7 +57,7 @@
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/negatif.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/negatif.png"> |
 
 ---
 
@@ -73,7 +73,7 @@
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/mirror.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/mirror.png"> |
 
 ---
 
@@ -81,7 +81,7 @@
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/noise.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/noise.png"> |
 
 ---
 
@@ -89,7 +89,7 @@
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/rotate.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/rotate.png"> |
 
 ---
 
@@ -97,7 +97,7 @@
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/split.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/split.png"> |
 
 ---
 
@@ -147,7 +147,7 @@ _J'ai trouvé cet exercice le plus dificle car il a fallu faire des calculs de t
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/mosaique.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/mosaique.png"> |
 
 _Pour cet exercice j'ai pris 1 pixel sur 5 de l'image originale pour les placer à la suite ce qui a rétréci l'image, et ensuite j'ai dupliqué_
 
@@ -157,7 +157,7 @@ _Pour cet exercice j'ai pris 1 pixel sur 5 de l'image originale pour les placer 
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/mosaique_mirror.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/mosaique_mirror.png"> |
 
 ---
 
@@ -165,7 +165,7 @@ _Pour cet exercice j'ai pris 1 pixel sur 5 de l'image originale pour les placer 
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/glitch.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/glitch.png"> |
 
 ---
 
@@ -173,7 +173,7 @@ _Pour cet exercice j'ai pris 1 pixel sur 5 de l'image originale pour les placer 
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/pixel_sorting.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/pixel_sorting.png"> |
 
 _Dans cet exercice j'ai eu du mal à trouver comment l'image originale a été faite.
 J'ai crée un tableau qui trie les pixels de chaque ligne indépendament, ensuite j'ai utilisé la fonction `random_int` pour appliquer l'effet à 1 ligne sur 2. Et enfin j'ai fait en sorte que une seule portion de la ligne qui soit triée_
@@ -213,7 +213,7 @@ J'ai réutilisé la matrice de Bayer et appliqué le principe Ordered Dithering.
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/vortex.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/vortex.png"> |
 
 ---
 
@@ -221,7 +221,7 @@ J'ai réutilisé la matrice de Bayer et appliqué le principe Ordered Dithering.
 
 | Avant | Après |
 |-------|-------|
-| <img src="images/logo.png"> | <img src="output/convolutions.png"> |
+| <img src="images/crack_list.jpg"> | <img src="output/convolutions.png"> |
 
 ---
 

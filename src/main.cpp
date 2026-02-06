@@ -840,125 +840,125 @@ void diamond_square(sil::Image &image)
 
 int main()
 {
-    // {
-    //     sil::Image image{"images/logo.png"};      // Lis l'image
-    //     keep_green_only(image);                   // Utilise la fonction pour modifier l'image
-    //     image.save("output/keep_green_only.png"); // Sauvegarde l'image
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     swap_canals(image);
-    //     image.save("output/swap_canals.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     black_and_white(image);
-    //     image.save("output/black_and_white.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     negatif(image);
-    //     image.save("output/negatif.png");
-    // }
-    // {
-    //     sil::Image image{300 /*width*/, 200 /*height*/};
-    //     gradient(image);
-    //     image.save("output/gradient.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     mirror(image);
-    //     image.save("output/mirror.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     noise(image);
-    //     image.save("output/noise.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     rotate(image);
-    //     image.save("output/rotate.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     split(image);
-    //     image.save("output/split.png");
-    // }
-    // {
-    //     sil::Image image{"images/photo_faible_contraste.jpg"};
-    //     lighting(image);
-    //     image.save("output/lighting.png");
-    // }
-    // {
-    //     sil::Image image{500 /*width*/, 500 /*height*/};
-    //     draw_circle(image);
-    //     image.save("output/circle.png");
-    // }
-    // {
-    //     sil::Image image{500 /*width*/, 500 /*height*/};
-    //     draw_empty_circle(image);
-    //     image.save("output/empty_circle.png");
-    // }
-    // {
-    //     sil::Image image{500 /*width*/, 500 /*height*/};
-    //     animation(image);
-    // }
+    {
+        sil::Image image{"images/crack_list.jpg"};      // Lis l'image
+        keep_green_only(image);                   // Utilise la fonction pour modifier l'image
+        image.save("output/keep_green_only.png"); // Sauvegarde l'image
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        swap_canals(image);
+        image.save("output/swap_canals.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        black_and_white(image);
+        image.save("output/black_and_white.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        negatif(image);
+        image.save("output/negatif.png");
+    }
+    {
+        sil::Image image{300 /*width*/, 200 /*height*/};
+        gradient(image);
+        image.save("output/gradient.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        mirror(image);
+        image.save("output/mirror.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        noise(image);
+        image.save("output/noise.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        rotate(image);
+        image.save("output/rotate.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        split(image);
+        image.save("output/split.png");
+    }
+    {
+        sil::Image image{"images/photo_faible_contraste.jpg"};
+        lighting(image);
+        image.save("output/lighting.png");
+    }
+    {
+        sil::Image image{500 /*width*/, 500 /*height*/};
+        draw_circle(image);
+        image.save("output/circle.png");
+    }
+    {
+        sil::Image image{500 /*width*/, 500 /*height*/};
+        draw_empty_circle(image);
+        image.save("output/empty_circle.png");
+    }
+    {
+        sil::Image image{500 /*width*/, 500 /*height*/};
+        animation(image);
+    }
     {
         sil::Image image{600 /*width*/, 600 /*height*/};
         rosace(image);
         image.save("output/rosace.png");
     }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     mosaique(image);
-    //     image.save("output/mosaique.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     mosaique_mirror(image);
-    //     image.save("output/mosaique_mirror.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     glitch(image);
-    //     image.save("output/glitch.png");
-    // }
-    // {
-    //     sil::Image image{300 /*width*/, 200 /*height*/};
-    //     color_gradient(image);
-    //     image.save("output/color_gradient.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     pixel_sorting(image);
-    //     image.save("output/pixel_sorting.png");
-    // }
-    // {
-    //     sil::Image image{"images/photo.jpg"};
-    //     tramage(image);
-    //     image.save("output/tramage.jpg");
-    // }
-    // {
-    //     sil::Image image{"images/photo_faible_contraste.jpg"};
-    //     normalisation(image);
-    //     image.save("output/normalisation.jpg");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     convolutions(image);
-    //     image.save("output/convolutions.png");
-    // }
-    // {
-    //     sil::Image image{"images/logo.png"};
-    //     vortex(image);
-    //     image.save("output/vortex.png");
-    // }
-    // {
-    //     sil::Image image{"images/photo.jpg"};
-    //     kuwahara(image);
-    //     image.save("output/kuwahara.jpg");
-    // }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        mosaique(image);
+        image.save("output/mosaique.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        mosaique_mirror(image);
+        image.save("output/mosaique_mirror.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        glitch(image);
+        image.save("output/glitch.png");
+    }
+    {
+        sil::Image image{300 /*width*/, 200 /*height*/};
+        color_gradient(image);
+        image.save("output/color_gradient.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        pixel_sorting(image);
+        image.save("output/pixel_sorting.png");
+    }
+    {
+        sil::Image image{"images/photo.jpg"};
+        tramage(image);
+        image.save("output/tramage.jpg");
+    }
+    {
+        sil::Image image{"images/photo_faible_contraste.jpg"};
+        normalisation(image);
+        image.save("output/normalisation.jpg");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        convolutions(image);
+        image.save("output/convolutions.png");
+    }
+    {
+        sil::Image image{"images/crack_list.jpg"};
+        vortex(image);
+        image.save("output/vortex.png");
+    }
+    {
+        sil::Image image{"images/photo.jpg"};
+        kuwahara(image);
+        image.save("output/kuwahara.jpg");
+    }
     {
         sil::Image image{129 /*width*/, 129 /*height*/}; // valeur doit être 2^n + 1
         diamond_square(image);
