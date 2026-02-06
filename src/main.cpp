@@ -59,7 +59,6 @@ void gradient(sil::Image &image)
 }
 
 // -----------------------⭐⭐
-
 void mirror(sil::Image &image)
 {
     int w = image.width();
@@ -142,6 +141,7 @@ void lighting(sil::Image &image)
     }
 }
 
+// -----------------------⭐⭐(⭐)
 void draw_circle(sil::Image &image)
 {
     int w = image.width();
@@ -228,7 +228,6 @@ void animation(sil::Image &image)
 }
 
 // -----------------------⭐⭐⭐
-
 void rosace(sil::Image &image)
 {
     int w = image.width();
@@ -387,6 +386,44 @@ void glitch(sil::Image &image)
 }
 
 // -----------------------⭐⭐⭐
+void pixel_sorting(sil::Image &image)
+{
+    int w = image.width();
+    int h = image.height();
+
+    std::vector<glm::vec3> pixels = image.pixels();
+
+    // tri ligne par ligne
+    for (int y = 0; y < h; y++)
+    {
+        if (random_int(0, 1) != 0) // 1 chance sur 2 de trier la ligne
+            continue;
+
+        int start = random_int(0, w - 1);
+        int length = random_int(1, 150);
+        if (start + length > w) // éviter que lenghth sorte de l'image
+        {
+            length = w - start;
+        }
+
+        std::vector<glm::vec3> row; // nouvau tableau pour la ligne en question
+
+        for (int x = start; x < start + length; x++)
+            row.push_back(pixels[y * w + x]);
+
+        std::sort(row.begin(), row.end(),
+                  [](const glm::vec3 &a, const glm::vec3 &b)
+                  {
+                      return (a.r + a.g + a.b) < (b.r + b.g + b.b); // tri selon la somme des composantes r+g+b
+                  });
+
+        for (int i = 0; i < length; i++)
+            pixels[y * w + start + i] = row[i];
+    }
+    image.pixels() = pixels; // met à jour l'image avec le vector trié
+}
+
+// -----------------------⭐⭐⭐
 
 // passer linear RGB en sRGB
 float rgb_to_srgb(float c)
@@ -460,44 +497,6 @@ void color_gradient(sil::Image &image)
     }
 }
 
-// -----------------------⭐⭐⭐
-void pixel_sorting(sil::Image &image)
-{
-    int w = image.width();
-    int h = image.height();
-
-    std::vector<glm::vec3> pixels = image.pixels();
-
-    // tri ligne par ligne
-    for (int y = 0; y < h; y++)
-    {
-        if (random_int(0, 1) != 0) // 1 chance sur 2 de trier la ligne
-            continue;
-
-        int start = random_int(0, w - 1);
-        int length = random_int(1, 150);
-        if (start + length > w) // éviter que lenghth sorte de l'image
-        {
-            length = w - start;
-        }
-
-        std::vector<glm::vec3> row; // nouvau tableau pour la ligne en question
-
-        for (int x = start; x < start + length; x++)
-            row.push_back(pixels[y * w + x]);
-
-        std::sort(row.begin(), row.end(),
-                  [](const glm::vec3 &a, const glm::vec3 &b)
-                  {
-                      return (a.r + a.g + a.b) < (b.r + b.g + b.b); // tri selon la somme des composantes r+g+b
-                  });
-
-        for (int i = 0; i < length; i++)
-            pixels[y * w + start + i] = row[i];
-    }
-    image.pixels() = pixels; // met à jour l'image avec le vector trié
-}
-
 // -----------------------⭐⭐⭐(⭐)
 void tramage(sil::Image &image)
 {
@@ -519,9 +518,9 @@ void tramage(sil::Image &image)
 
             int bx = x % 4;
             int by = y % 4;
-            float bayer_value = bayer[by][bx] * 1.8; // multiplier pour assombrir l'image un peu
+            float bayer_value = bayer[by][bx] * 2; // multiplier pour assombrir / éclaircir (dépend si seuil inversé) l'image un peu
 
-            if (brightness > bayer_value)
+            if (brightness > bayer_value) //1-bayer_value = inverser pour que les noirs soient plus noirs
                 image.pixel(x, y) = glm::vec3(1, 1, 1); // blanc
             else
                 image.pixel(x, y) = glm::vec3(0, 0, 0); // noir
@@ -536,8 +535,7 @@ void normalisation(sil::Image &image)
     int h = image.height();
     glm::vec3 darkest = image.pixel(0, 0);   // pixel le plus foncé
     glm::vec3 brightest = image.pixel(0, 0); // pixel le plus clair
-    float min_brightness = 1.0f;
-    float max_brightness = 0.0f;
+    std::vector<float> brightness_values;
 
     // trouver min et max
     for (int x = 0; x < w; x++)
@@ -547,12 +545,14 @@ void normalisation(sil::Image &image)
             glm::vec3 color = image.pixel(x, y);
             // calcul luminosité
             float brightness = (0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b);
-            if (brightness < min_brightness)
-                min_brightness = brightness;
-            if (brightness > max_brightness)
-                max_brightness = brightness;
+            brightness_values.push_back(brightness);
         }
     }
+    //trier le tableau pour avoir la plus grosse et petite valeur
+    std::sort(brightness_values.begin(), brightness_values.end());
+
+    float min_brightness = brightness_values.front();
+    float max_brightness = brightness_values.back();
     float range = max_brightness - min_brightness;
 
     if (range == 0)
@@ -566,8 +566,9 @@ void normalisation(sil::Image &image)
             float brightness = 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
             float difference = (brightness - min_brightness) / range;
 
-            glm::vec3 newColor = color * (difference / brightness);
-            image.pixel(x, y) = newColor;
+            // éviter division par 0 pixel noir
+            if (brightness > 0.0f)
+                image.pixel(x, y) = color * (difference / brightness);
         }
     }
 }
@@ -594,7 +595,7 @@ void vortex(sil::Image &image)
             glm::vec2 position(x, y);
 
             float distance = glm::distance(position, center_of_rotation); // Distance entre le pixel et le centre du vortex
-            float angle = distance * 0.1f;                                // intensité du vortex
+            float angle = distance * 0.1f; // intensité du vortex
 
             glm::vec2 src = rotated(position, center_of_rotation, angle);
 
@@ -726,28 +727,6 @@ void kuwahara(sil::Image &image)
     }
 }
 
-void example2(sil::Image &image)
-{
-    int w = image.width();
-    int h = image.height();
-    for (int x = 0; x < w; x++)
-    {
-        for (int y = 0; y < h; y++)
-        {
-        }
-    }
-}
-
-void example(sil::Image &image)
-{
-    for (glm::vec3 &color : image.pixels())
-    {
-        color.r = 0;
-        color.g = 0;
-        color.b = 0;
-    }
-}
-
 int main()
 {
     {
@@ -844,16 +823,16 @@ int main()
     //     pixel_sorting(image);
     //     image.save("output/pixel_sorting.png");
     // }
-    // {
-    //     sil::Image image{"images/photo_faible_contraste.jpg"};
-    //     tramage(image);
-    //     image.save("output/tramage.jpg");
-    // }
-    // {
-    //     sil::Image image{"images/photo_faible_contraste.jpg"};
-    //     normalisation(image);
-    //     image.save("output/normalisation.jpg");
-    // }
+    {
+        sil::Image image{"images/photo.jpg"};
+        tramage(image);
+        image.save("output/tramage.jpg");
+    }
+    {
+        sil::Image image{"images/photo_faible_contraste.jpg"};
+        normalisation(image);
+        image.save("output/normalisation.jpg");
+    }
     // {
     //     sil::Image image{"images/logo.png"};
     //     convolutions(image);
